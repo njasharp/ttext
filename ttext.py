@@ -28,7 +28,7 @@ if not groq_api_key:
     st.stop()
 
 client = Groq(api_key=groq_api_key)
-st.image("p1.png", width=200)
+st.image("p1.png", width=300)
 st.sidebar.image("p2.png", width=200)
 
 def main():
@@ -40,22 +40,18 @@ def main():
     temperature = st.sidebar.slider("Temperature", 0.0, 1.0, 0.5)
     output_size = st.sidebar.selectbox(
         "Select Output Size",
-        [
-            "2-5 word sentences", 
-            "3-7 word sentences", 
-            "5-9 word sentences",
-            "6-11 word sentences"
-        ]
+        ["1-3 word sentences", "2-5 word sentences", "3-7 word sentences", "5-9 word sentences", "6-11 word sentences"]
     )
     bullet_points = st.sidebar.checkbox("Output as Bullet Points")
     humanize_text = st.sidebar.checkbox("Humanize Text")
-    
+    display_final_answer = st.sidebar.checkbox("Display Process")
+    reduce_words = st.sidebar.checkbox("Reduce Word Count by 50%")  # New checkbox for reducing word count
+
     # Clear and reset buttons in the sidebar
     if st.sidebar.button("Clear Input Fields"):
         st.session_state.system_prompt = "Create a revised [text] concise and focused, Provide the output in bullet points or a brief paragraph, offer 2-3 alternates - suggest areas for improvement. . list final answer in separate area"
         st.session_state.user_query = ""
 
-    
     # Input fields for system prompt and query
     default_prompt = "Create a revised [text] concise and focused, Provide the output in bullet points or a brief paragraph, offer 2-3 alternates - suggest areas for improvement. . list final answer in separate area"
     system_prompt = st.text_area("System Prompt", value=st.session_state.get("system_prompt", default_prompt), key="system_prompt")
@@ -63,7 +59,7 @@ def main():
     
     if st.button("Submit"):
         with st.spinner("Generating response..."):
-            response = query_groq(model, temperature, system_prompt, user_query, output_size, humanize_text)
+            response = query_groq(model, temperature, system_prompt, user_query, output_size, humanize_text, reduce_words)
         
         col1, col2 = st.columns(2)
         
@@ -75,23 +71,25 @@ def main():
                 "Output Size": output_size,
                 "Bullet Points": bullet_points,
                 "Humanize Text": humanize_text,
+                "Display Final Answer": display_final_answer,
                 "System Prompt": system_prompt,
                 "User Query": user_query
             })
+            if display_final_answer:
+                st.write("### Original Response")
+                st.text_area("Original Response", value=response, height=400)
         
         with col2:
-            st.write("### Output Response")
-            st.text(response)
-        
-        st.write("### Processed Response")
-        if response.startswith("Error:"):
-            st.error(response)
-        else:
-            processed_response = process_response(response, output_size, bullet_points, humanize_text)
-            st.write("**Generated Response:**")
-            st.text_area("Processed Response", value=processed_response, height=200, disabled=True)
+            if display_final_answer:
+                processed_response = process_response(response, output_size, bullet_points, humanize_text, reduce_words)
+                additional_text = "Please review the response carefully before proceeding."
+                st.write("### Processed Response with Review")
+                st.text_area(response, value=processed_response + "\n" + additional_text, height=200)
+            else:
+                st.write("### Output Response")
+                st.text(response)
 
-def query_groq(model, temperature, system_prompt, user_query, output_size, humanize_text):
+def query_groq(model, temperature, system_prompt, user_query, output_size, humanize_text, reduce_words):
     try:
         completion = client.chat.completions.create(
             model=SUPPORTED_MODELS[model],
@@ -108,8 +106,15 @@ def query_groq(model, temperature, system_prompt, user_query, output_size, human
     except Exception as e:
         return f"Error: {str(e)}"
 
-def process_response(text, output_size, bullet_points, humanize_text):
-    if output_size == "2-5 word sentences":
+def process_response(text, output_size, bullet_points, humanize_text, reduce_words):
+    if reduce_words:
+        # Reduce word count by 50%
+        words = text.split()
+        text = " ".join(words[:len(words)//2])
+    
+    if output_size == "1-3 word sentences":
+        text = reduce_to_sentences(text, 1, 3)
+    elif output_size == "2-5 word sentences":
         text = reduce_to_sentences(text, 2, 5)
     elif output_size == "3-7 word sentences":
         text = reduce_to_sentences(text, 3, 7)
@@ -119,7 +124,7 @@ def process_response(text, output_size, bullet_points, humanize_text):
         text = reduce_to_sentences(text, 6, 11)
     
     if bullet_points:
-        text = reduce_to_bullet_points(text, 2, 11)  # Adjusting min and max word count for bullet points
+        text = reduce_to_bullet_points(text, 1, 11)
     
     if humanize_text:
         text = humanize(text)
@@ -145,7 +150,7 @@ def reduce_to_sentences(text, min_words, max_words):
     return ' '.join(filtered_sentences)
 
 def humanize(text):
-    # TODO: Implement a more sophisticated humanization function
+    # This can be replaced with a more sophisticated humanization logic as needed
     return text.replace(". ", ". Let's consider this further. ")
 
 st.sidebar.info("build by dw")
