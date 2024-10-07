@@ -44,7 +44,7 @@ def main():
     )
     bullet_points = st.sidebar.checkbox("Output as Bullet Points", value=True)
     humanize_text = st.sidebar.checkbox("Humanize Text")
-    display_final_answer = st.sidebar.checkbox("Display Process", value=True)
+    display_final_answer = st.sidebar.checkbox("Display Process")
     reduce_words = st.sidebar.checkbox("Reduce Word Count by 50%")  # New checkbox for reducing word count
 
     # Clear and reset buttons in the sidebar
