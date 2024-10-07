@@ -41,21 +41,23 @@ def main():
     output_size = st.sidebar.selectbox(
         "Select Output Size",
         [
-            "Bullet points 2-5 words", 
+            "2-5 word sentences", 
             "3-7 word sentences", 
             "5-9 word sentences",
             "6-11 word sentences"
         ]
     )
+    bullet_points = st.sidebar.checkbox("Output as Bullet Points")
     humanize_text = st.sidebar.checkbox("Humanize Text")
     
     # Clear and reset buttons in the sidebar
     if st.sidebar.button("Clear Input Fields"):
-        st.session_state.system_prompt = "Create a revised [text] concise and focused, Provide the output in bullet points or a brief paragraph, offer 2-3 alternates - suggest areas for improvement. list final answer in separate area."
+        st.session_state.system_prompt = "Create a revised [text] concise and focused, Provide the output in bullet points or a brief paragraph, offer 2-3 alternates - suggest areas for improvement. . list final answer in separate area"
         st.session_state.user_query = ""
+
     
     # Input fields for system prompt and query
-    default_prompt = "Create a revised [text] concise and focused, Provide the output in bullet points or a brief paragraph, offer 2-3 alternates - suggest areas for improvement. list final answer in separate area."
+    default_prompt = "Create a revised [text] concise and focused, Provide the output in bullet points or a brief paragraph, offer 2-3 alternates - suggest areas for improvement. . list final answer in separate area"
     system_prompt = st.text_area("System Prompt", value=st.session_state.get("system_prompt", default_prompt), key="system_prompt")
     user_query = st.text_area("Enter Your Query", value=st.session_state.get("user_query", ""), key="user_query")
     
@@ -71,6 +73,7 @@ def main():
                 "Model": model,
                 "Temperature": temperature,
                 "Output Size": output_size,
+                "Bullet Points": bullet_points,
                 "Humanize Text": humanize_text,
                 "System Prompt": system_prompt,
                 "User Query": user_query
@@ -84,7 +87,7 @@ def main():
         if response.startswith("Error:"):
             st.error(response)
         else:
-            processed_response = process_response(response, output_size, humanize_text)
+            processed_response = process_response(response, output_size, bullet_points, humanize_text)
             st.write("**Generated Response:**")
             st.text_area("Processed Response", value=processed_response, height=200, disabled=True)
 
@@ -105,15 +108,18 @@ def query_groq(model, temperature, system_prompt, user_query, output_size, human
     except Exception as e:
         return f"Error: {str(e)}"
 
-def process_response(text, output_size, humanize_text):
-    if output_size == "Bullet points 2-5 words":
-        text = reduce_to_bullet_points(text, 2, 5)
+def process_response(text, output_size, bullet_points, humanize_text):
+    if output_size == "2-5 word sentences":
+        text = reduce_to_sentences(text, 2, 5)
     elif output_size == "3-7 word sentences":
         text = reduce_to_sentences(text, 3, 7)
     elif output_size == "5-9 word sentences":
         text = reduce_to_sentences(text, 5, 9)
     elif output_size == "6-11 word sentences":
         text = reduce_to_sentences(text, 6, 11)
+    
+    if bullet_points:
+        text = reduce_to_bullet_points(text, 2, 11)  # Adjusting min and max word count for bullet points
     
     if humanize_text:
         text = humanize(text)
