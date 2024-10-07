@@ -5,25 +5,7 @@ from groq import Groq
 st.set_page_config(layout="wide")
 
 # Apply custom CSS for a dark theme
-st.markdown(
-    """
-    <style>
-    .stApp {
-        background-color: #0e0e0e;
-        color: #ffffff;
-    }
-    .stTextInput, .stTextArea, .stSelectbox {
-        background-color: #262626;
-        color: #ffffff;
-    }
-    .stButton > button {
-        background-color: #1e1e1e;
-        color: #ffffff;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
+
 # Supported models
 SUPPORTED_MODELS = {
     "Llama 3.2 1B (Preview)": "llama-3.2-1b-preview",
