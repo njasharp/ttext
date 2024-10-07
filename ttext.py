@@ -42,9 +42,9 @@ def main():
         "Select Output Size",
         ["1-3 word sentences", "2-5 word sentences", "3-7 word sentences", "5-9 word sentences", "6-11 word sentences"]
     )
-    bullet_points = st.sidebar.checkbox("Output as Bullet Points")
+    bullet_points = st.sidebar.checkbox("Output as Bullet Points", value=True)
     humanize_text = st.sidebar.checkbox("Humanize Text")
-    display_final_answer = st.sidebar.checkbox("Display Process")
+    display_final_answer = st.sidebar.checkbox("Display Process", value=True)
     reduce_words = st.sidebar.checkbox("Reduce Word Count by 50%")  # New checkbox for reducing word count
 
     # Clear and reset buttons in the sidebar
@@ -77,7 +77,7 @@ def main():
             })
             if display_final_answer:
                 st.write("### Original Response")
-                st.text_area("Original Response", value=response, height=400)
+                st.text_area("Original Response", value=response, height=600)
         
         with col2:
             if display_final_answer:
@@ -88,7 +88,7 @@ def main():
             else:
                 st.write("### Output Response")
                 st.text(response)
-
+        
 def query_groq(model, temperature, system_prompt, user_query, output_size, humanize_text, reduce_words):
     try:
         completion = client.chat.completions.create(
