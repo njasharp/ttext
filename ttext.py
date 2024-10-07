@@ -65,16 +65,15 @@ def main():
         
         with col1:
             st.write("### Detailed Information")
-            st.json({
-                "Model": model,
-                "Temperature": temperature,
-                "Output Size": output_size,
-                "Bullet Points": bullet_points,
-                "Humanize Text": humanize_text,
-                "Display Final Answer": display_final_answer,
-                "System Prompt": system_prompt,
-                "User Query": user_query
-            })
+            st.write("Model:", model)
+            st.write("Temperature:", temperature)
+            st.write("Output Size:", output_size)
+            st.write("Bullet Points:")
+            st.write(bullet_points)
+            st.write("Humanize Text:", humanize_text)
+            st.write("Display Final Answer:", display_final_answer)
+            st.write("System Prompt:", system_prompt)
+            st.write("User Query:", user_query)
             if display_final_answer:
                 st.write("### Original Response")
                 st.text_area("Original Response", value=response, height=600)
