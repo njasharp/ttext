@@ -49,11 +49,11 @@ def main():
 
     # Clear and reset buttons in the sidebar
     if st.sidebar.button("Clear Input Fields"):
-        st.session_state.system_prompt = "Create a revised [text] concise and focused, Provide the output in bullet points or a brief paragraph, offer 2-3 alternates - suggest areas for improvement. . list final answer in separate area"
+        st.session_state.system_prompt = "Create a revised [text] use 3-5 words concise and focused, Provide the output in short format plus in bullet points or a brief paragraph,  plus  offer 2-3 alternates - suggest areas for improvement. . list final answer in separate area"
         st.session_state.user_query = ""
 
     # Input fields for system prompt and query
-    default_prompt = "Create a revised [text] concise and focused, Provide the output in bullet points or a brief paragraph, offer 2-3 alternates - suggest areas for improvement. . list final answer in separate area"
+    default_prompt = "Create a revised [text] use 3-5 words concise and focused, Provide the output in short format plus in bullet points or a brief paragraph,  plus  offer 2-3 alternates - suggest areas for improvement. . list final answer in separate area"
     system_prompt = st.text_area("System Prompt", value=st.session_state.get("system_prompt", default_prompt), key="system_prompt")
     user_query = st.text_area("Enter Your Query", value=st.session_state.get("user_query", ""), key="user_query")
     
